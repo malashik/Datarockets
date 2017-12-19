@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        div{
+            padding-left: 20px;
+            height: auto;
+            
+        }
+        .active{
+            height: 18px;
+            overflow: hidden;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id='block'>Container</div>
+
+    <script>
+        var obj = {
+            name: "Frontend",
+            skills: [
+                {
+                name: "HTML & CSS",
+                skills: [
+                    {
+                    name: "Understanding block, inline and table models"
+                    },
+                    {
+                    name: "Stylesheets",
+                    skills: [
+                        {
+                        name: "Positioning",
+                        skills: [
+                            {
+                            name: "static, relative and absolute, fixed, sticky"
+                            }
+                        ]
+                        },
+                        {
+                        name: "Understanding of box model"
+                        },
+                        {
+                        name: "Understanding floating"
+                        }
+                    ]
+                    }
+                ]
+                },
+                {
+                name: "JavaScript",
+                skills: [
+                    {
+                    name: "Core",
+                    skills: [
+                        {
+                        name: "DOM"
+                        },
+                        {
+                        name: "Events"
+                        },
+                        {
+                        name: "Data structures",
+                        skills: [
+                            {
+                            name: "Primitives and limitations"
+                            },
+                            {
+                            name: "Object"
+                            }
+                        ]
+                        },
+                    ]
+                    },
+                    {
+                    name: "Approaches",
+                    skills: [
+                        {
+                        name: "OOP",
+                        skills: [
+                            {
+                            name: "class"
+                            },
+                            {
+                            name: "Prototypes"
+                            }
+                        ]
+                        },
+                        {
+                        name: "Asynchronous programming"
+                        }
+                    ]
+                    },
+                    {
+                    name: "Frameworks & libraries",
+                    skills: [
+                        {
+                        name: "React"
+                        },
+                        {
+                        name: "jQuery"
+                        }
+                    ]
+                    }
+                ]
+                }
+            ]
+        }
+
+
+        var block = document.getElementById('block');
+
+        function createNode(obj,father){  // создает div, а внутри него A
+            var div = document.createElement('div');
+            var aTag = document.createElement('a');
+            var node = document.createTextNode(obj.name);
+            var createdClass = '' + obj.name; // создаем строку с названием для id
+
+            div.setAttribute('id',createdClass);
+            div.setAttribute('class','active');
+            aTag.setAttribute('href','#');
+            aTag.appendChild(node);
+            div.appendChild(aTag);
+            father.appendChild(div);
+        }
+
+        createNode(obj,block); // создает потомка первого уровня, от которого будем плясать
+
+        var createFunc = function(object){
+            if(object.skills){
+                for (var i=0;i<object.skills.length;i++){
+                    var classFather = "" + object.name;
+                    var newFather = document.getElementById(classFather);
+                    newFather.firstChild.style.color = 'green';
+                    createNode(object.skills[i],newFather);
+                    createFunc(object.skills[i]);
+
+                }
+            }
+        }
+        createFunc(obj);
+
+        var link = document.querySelectorAll('a'); 
+        function fun(e){
+                e.target.parentElement.classList.toggle('active'); 
+             
+            console.log('e.target=',e.target);
+            console.log('e.currentTarget=',e.currentTarget);
+            console.log('e.target.parentElement=',e.target.parentElement);
+            };
+        for (var i = 0;i<link.length;i++){
+            link[i].addEventListener('click',fun);
+        }
+    </script>
+</body>
+</html>
