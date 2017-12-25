@@ -9,13 +9,23 @@
         div{
             padding-left: 20px;
             height: auto;
-            
         }
         .active{
             height: 18px;
             overflow: hidden;
         }
-        
+        .button{
+            margin:0 20px;
+            border-radius: 50%;
+            background: transparent;
+            height: 18px;
+            width: 18px;
+            padding: 0;
+        }
+        .input-hide,
+        .input-hide + input{
+            visibility: hidden;
+        }
     </style>
 </head>
 <body>
@@ -114,47 +124,110 @@
 
 
         var block = document.getElementById('block');
+        if(sessionStorage.obj){
+            obj = JSON.parse(sessionStorage.obj);
+        }
+        main();
 
-        function createNode(obj,father){  // создает div, а внутри него A
+        function createWrapper(obj,father){ // создает DIV, внутри которого a, input, button
             var div = document.createElement('div');
             var aTag = document.createElement('a');
+            var button = document.createElement('button');
+            var inputText = document.createElement('input');
+            var inputBut = document.createElement('input');
             var node = document.createTextNode(obj.name);
-            var createdClass = '' + obj.name; // создаем строку с названием для id
+            var createdClass = '' + obj.name; 
 
             div.setAttribute('id',createdClass);
-            div.setAttribute('class','active');
             aTag.setAttribute('href','#');
+            button.setAttribute('class','button');
+            inputText.setAttribute('type','text');
+            inputText.setAttribute('placeholder','Node name');
+            inputText.setAttribute('class','input-hide');
+            inputBut.setAttribute('type','button');
+            inputBut.setAttribute('value','Create node');
+            button.innerHTML='+';
             aTag.appendChild(node);
             div.appendChild(aTag);
+            div.appendChild(button);
+            div.appendChild(inputText);
+            div.appendChild(inputBut);
             father.appendChild(div);
         }
-
-        createNode(obj,block); // создает потомка первого уровня, от которого будем плясать
-
-        var createFunc = function(object){
+        
+        function createDOM(object){ // проходит по исходному объекту и создает разметку
             if(object.skills){
                 for (var i=0;i<object.skills.length;i++){
                     var classFather = "" + object.name;
                     var newFather = document.getElementById(classFather);
                     newFather.firstChild.style.color = 'green';
-                    createNode(object.skills[i],newFather);
-                    createFunc(object.skills[i]);
-
+                    createWrapper(object.skills[i],newFather);
+                    createDOM(object.skills[i]);
                 }
             }
         }
-        createFunc(obj);
 
-        var link = document.querySelectorAll('a'); 
-        function fun(e){
-                e.target.parentElement.classList.toggle('active'); 
-             
-            console.log('e.target=',e.target);
-            console.log('e.currentTarget=',e.currentTarget);
-            console.log('e.target.parentElement=',e.target.parentElement);
-            };
-        for (var i = 0;i<link.length;i++){
-            link[i].addEventListener('click',fun);
+        function hideInput(){ // навешиваем обработчики событий
+            var link = document.querySelectorAll('a');
+            var buttons = document.querySelectorAll('button');
+            
+            for (var i = 0;i<link.length;i++){
+                link[i].addEventListener('click',function(e){
+                    e.target.parentElement.classList.toggle('active'); 
+                });
+            }
+            for (var j = 0;j<buttons.length;j++){
+                buttons[j].addEventListener('click',function(e){
+                    e.target.nextSibling.classList.toggle('input-hide');
+                });
+            }
+        }
+
+        function createChangedDom(e){ // добавляет новый элемент разметки
+            function func(){
+                var front = document.getElementById('Frontend').remove();
+            }
+            func();
+            newName = e.target.previousSibling.value;
+            var value = e.target.parentElement.id;
+            function addElem(obj,value){
+                var objArr = JSON.stringify(obj).split(value);
+                var subObjArr = objArr[1].split('');
+                if(objArr[1].indexOf("\",\"skills\"")==0){
+                    var newNode=JSON.stringify({"name": newName},)+','; 
+                    var newNodeArr = newNode.split('');
+                    for(var l = 0;l<newNodeArr.length;l++){
+                        subObjArr.splice(12+l,0,newNodeArr[l]);
+                    }
+                }else{
+                    newNode =  "\",\"skills\":[" + JSON.stringify({"name": newName}) +']';
+                    newNodeArr = newNode.split(''); 
+                    subObjArr.shift();
+                    for(var l = 0;l<newNodeArr.length;l++){
+                        subObjArr.splice(0+l,0,newNodeArr[l]);
+                    }
+                }
+                objArr[1]=subObjArr.join('');
+                var finalObj = objArr.join(value);
+                return JSON.parse(finalObj);
+            }
+            addElem(obj,value);
+            if(newName){
+                obj = addElem(obj,value);
+            }
+            main();
+            sessionStorage.setItem('obj',JSON.stringify(obj));
+        }
+
+        function main(){ // результирующая функция
+            createWrapper(obj,block);
+            createDOM(obj);
+            hideInput();
+            var nodeCreater = document.querySelectorAll("input[type='button']");
+            var newName = '';
+            for (var i = 0;i<nodeCreater.length;i++){
+                nodeCreater[i].addEventListener('click',createChangedDom);
+            }
         }
     </script>
 </body>
